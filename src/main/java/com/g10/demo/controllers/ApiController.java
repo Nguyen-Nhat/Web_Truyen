@@ -34,6 +34,7 @@ public class ApiController {
                                   @RequestParam String url) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+
         successApiResponse.setData(plugin.getOverview(url));
         return ResponseEntity.ok(successApiResponse);
     }

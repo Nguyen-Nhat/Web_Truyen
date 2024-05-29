@@ -1,5 +1,6 @@
 package com.g10.demo.plugins;
 
+import com.g10.demo.exception.AppException;
 import com.g10.demo.services.WebCrawlerService;
 
 import org.springframework.stereotype.Component;
@@ -55,7 +56,7 @@ public class PluginManager {
         WebCrawlerService plugin = plugins.get(className);
 
         if (plugin == null) {
-            throw new IllegalArgumentException("Plugin not found: " + className);
+            throw new AppException("Plugin not found: " + className,400);
         }
         return plugin;
     }

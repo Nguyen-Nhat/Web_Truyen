@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.http.HttpResponse;
 
 @ControllerAdvice
+@RestController
 public class ErrorController {
 
     @ExceptionHandler(AppException.class)
