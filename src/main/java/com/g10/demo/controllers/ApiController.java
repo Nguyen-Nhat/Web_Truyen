@@ -4,10 +4,7 @@ import com.g10.demo.plugins.PluginManager;
 import com.g10.demo.type.response.SuccessApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.http.HttpResponse;
 
@@ -32,7 +29,9 @@ public class ApiController {
     }
 
     @GetMapping("/{serverName}/overview")
-    ResponseEntity<?> getOverview(@PathVariable String serverName, String url) {
+    ResponseEntity<?> getOverview(@PathVariable String serverName, @RequestParam String url) {
+        System.out.println(serverName);
+        System.out.println(url);
         return ResponseEntity.ok(pluginManager.getPlugin(serverName).getDetails(url));
     }
 

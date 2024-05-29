@@ -19,5 +19,5 @@ public class StoryOverview {
     private String genre;
     private double rating;
     private int totalRating;
-    private List<ChapterInfor> chapters;
+    private int maxPageOfChapter;
 }

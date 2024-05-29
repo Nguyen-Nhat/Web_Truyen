@@ -1,14 +1,15 @@
-package com.g10.demo.plugins;
+package com.g10.demo.services;
 
-import com.g10.demo.services.WebCrawlerService;
+import com.g10.demo.type.ChapterInfor;
 import com.g10.demo.type.SearchResultStory;
+import com.g10.demo.type.StoryDetail;
 import com.g10.demo.type.StoryOverview;
 
 import java.util.List;
 
-public class TangThuVienPlugin implements WebCrawlerService {
+public class TangThuVienWebCrawlerService implements WebCrawlerService{
     @Override
-    public StoryOverview getDetails(String url) {
+    public StoryOverview getOverview(String url) {
         return null;
     }
 
@@ -29,6 +30,16 @@ public class TangThuVienPlugin implements WebCrawlerService {
 
     @Override
     public String getName() {
-        return "Tang Thu Vien";
+        return "tangthuvien";
+    }
+
+    @Override
+    public StoryDetail getDetails(String url) {
+        return null;
+    }
+
+    @Override
+    public List<ChapterInfor> getChapterInfoByPage(String url) {
+        return List.of();
     }
 }

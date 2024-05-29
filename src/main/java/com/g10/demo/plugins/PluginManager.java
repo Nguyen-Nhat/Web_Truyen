@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class PluginManager {
     private final Map<String, WebCrawlerService> plugins = new ConcurrentHashMap<>();
-    private static final String DEFAULT_CLASS_DIR = "Web_Truyen/target/classes";
+    private static final String DEFAULT_CLASS_DIR = "target/classes";
 
     public void loadPlugin() throws Exception {
         File directory = new File(DEFAULT_CLASS_DIR);

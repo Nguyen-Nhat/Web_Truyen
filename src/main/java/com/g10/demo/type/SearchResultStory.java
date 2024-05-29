@@ -15,8 +15,8 @@ public class SearchResultStory {
     private String coverImage;
     private String title;
     private String author;
-    private int lastChapter;
-    private int lastDayUpdate;
+    private String lastChapter;
+    private String lastDayUpdate;
     private String url;
-
+    private int maxPage;
 }
