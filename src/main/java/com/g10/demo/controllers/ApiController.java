@@ -25,6 +25,7 @@ public class ApiController {
     @GetMapping("/servers")
     ResponseEntity<?> getServers() {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("201");
         successApiResponse.setData(pluginManager.getAllNames());
         return ResponseEntity.ok(successApiResponse);
     }
@@ -32,9 +33,10 @@ public class ApiController {
     @GetMapping("/{serverName}/overview")
     ResponseEntity<?> getOverview(@PathVariable String serverName,
                                   @RequestParam String url) {
-        SuccessApiResponse successApiResponse = new SuccessApiResponse();
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
 
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("success");
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
         successApiResponse.setData(plugin.getOverview(url));
         return ResponseEntity.ok(successApiResponse);
     }
@@ -44,6 +46,7 @@ public class ApiController {
                              @RequestParam String q) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setStatus("success");
         successApiResponse.setData(plugin.search(q));
         return ResponseEntity.ok(successApiResponse);
     }
@@ -52,6 +55,7 @@ public class ApiController {
     ResponseEntity<?> getStoryByGenre(@PathVariable String serverName,
                                       @RequestParam String genre) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
         successApiResponse.setData(plugin.getStoryByGenre(genre));
         return ResponseEntity.ok(successApiResponse);
@@ -60,8 +64,19 @@ public class ApiController {
     @GetMapping("/{serverName}/recommendation")
     ResponseEntity<?> getRecommendation(@PathVariable String serverName) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
         successApiResponse.setData(plugin.getRecommendation());
+        return ResponseEntity.ok(successApiResponse);
+    }
+
+    @GetMapping("/{serverName}/chapter")
+    ResponseEntity<?> getChapter(@PathVariable String serverName,
+                                @RequestParam String url) {
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("success");
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.getChapterInfoByPage(url));
         return ResponseEntity.ok(successApiResponse);
     }
 }
