@@ -74,7 +74,7 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     public StoryOverview getOverview(String url) {
         try {
             // GET OVERVIEW
-            System.out.println(url);
+            System.out.println(url + "123");
             Document doc = Jsoup.connect(url).get();
             String coverImage = doc.selectFirst("#story-detail img.cover").attr("src");
             String title = doc.selectFirst("#story-detail h1.title").text();
