@@ -11,6 +11,6 @@ public interface WebCrawlerService {
     public List<SearchResultStory> search(String keyword);
     public List<SearchResultStory> getStoryByGenre(String genre);
     public List<SearchResultStory> getRecommendation();
-
+    public String getName();
 
 }

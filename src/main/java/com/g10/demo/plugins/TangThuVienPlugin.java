@@ -6,7 +6,7 @@ import com.g10.demo.type.StoryOverview;
 
 import java.util.List;
 
-public class DTruyenPlugin implements WebCrawlerService {
+public class TangThuVienPlugin implements WebCrawlerService {
     @Override
     public StoryOverview getDetails(String url) {
         return null;
@@ -29,6 +29,6 @@ public class DTruyenPlugin implements WebCrawlerService {
 
     @Override
     public String getName() {
-        return "DTruyenPlugin";
+        return "Tang Thu Vien";
     }
 }
