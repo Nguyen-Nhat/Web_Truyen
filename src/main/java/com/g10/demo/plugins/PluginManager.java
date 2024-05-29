@@ -52,7 +52,12 @@ public class PluginManager {
     }
 
     public WebCrawlerService getPlugin(String className) {
-        return plugins.get(className);
+        WebCrawlerService plugin = plugins.get(className);
+
+        if (plugin == null) {
+            throw new IllegalArgumentException("Plugin not found: " + className);
+        }
+        return plugin;
     }
 
     public String[] getAllNames() {

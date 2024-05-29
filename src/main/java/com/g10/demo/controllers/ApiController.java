@@ -1,6 +1,7 @@
 package com.g10.demo.controllers;
 
 import com.g10.demo.plugins.PluginManager;
+import com.g10.demo.services.WebCrawlerService;
 import com.g10.demo.type.response.SuccessApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,24 +30,37 @@ public class ApiController {
     }
 
     @GetMapping("/{serverName}/overview")
-    ResponseEntity<?> getOverview(@PathVariable String serverName, @RequestParam String url) {
-        System.out.println(serverName);
-        System.out.println(url);
-        return ResponseEntity.ok(pluginManager.getPlugin(serverName).getDetails(url));
+    ResponseEntity<?> getOverview(@PathVariable String serverName,
+                                  @RequestParam String url) {
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.getOverview(url));
+        return ResponseEntity.ok(successApiResponse);
     }
 
     @GetMapping("/{serverName}/search")
-    ResponseEntity<?> search(@PathVariable String serverName, String keyword) {
-        return ResponseEntity.ok(pluginManager.getPlugin(serverName).search(keyword));
+    ResponseEntity<?> search(@PathVariable String serverName,
+                             @RequestParam String q) {
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.search(q));
+        return ResponseEntity.ok(successApiResponse);
     }
 
     @GetMapping("/{serverName}/genre")
-    ResponseEntity<?> getStoryByGenre(@PathVariable String serverName, String genre) {
-        return ResponseEntity.ok(pluginManager.getPlugin(serverName).getStoryByGenre(genre));
+    ResponseEntity<?> getStoryByGenre(@PathVariable String serverName,
+                                      @RequestParam String genre) {
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.getStoryByGenre(genre));
+        return ResponseEntity.ok(successApiResponse);
     }
 
     @GetMapping("/{serverName}/recommendation")
     ResponseEntity<?> getRecommendation(@PathVariable String serverName) {
-        return ResponseEntity.ok(pluginManager.getPlugin(serverName).getRecommendation());
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.getRecommendation());
+        return ResponseEntity.ok(successApiResponse);
     }
 }
