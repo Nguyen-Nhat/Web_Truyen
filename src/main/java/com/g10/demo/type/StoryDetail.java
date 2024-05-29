@@ -1,0 +1,21 @@
+package com.g10.demo.type;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class StoryDetail {
+    private String title;
+    private String author;
+    private String date;
+    private ChapterInfor currentChapter;
+    private List<ChapterInfor> chapters;
+    private String content;
+}
