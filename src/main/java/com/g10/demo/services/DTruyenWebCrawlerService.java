@@ -13,6 +13,8 @@ import org.jsoup.select.Elements;
 
 import javax.print.Doc;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -115,13 +117,14 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
                         String coverImage = temp.attr("data-layzr");
                         String urlStory = a.attr("href");
                         String title = a.attr("title");
-                        String author = doc.selectFirst("p[itemprop=author]").text();
+                        String author = element.selectFirst("p[itemprop=author]").text();
 
-                        String lastChapter = doc.selectFirst("p.last-chapter").text();
+                        String lastChapter = element.selectFirst("p.last-chapter").text();
 
-                        String lastDayUpdate = doc.selectFirst(".last-updated").text();
+                        String lastDayUpdate = element.selectFirst(".last-chap .last-updated").text();
+                        Date lastDateUpdate = new Date(Long.parseLong(lastDayUpdate) * 1000);
 
-                        return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate,urlStory, maxPage);
+                        return new SearchResultStory(coverImage, title, author, lastChapter, lastDateUpdate,urlStory, maxPage);
                     })
                     .toList();
         }
@@ -133,14 +136,40 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
 
     @Override
     public List<SearchResultStory> getStoryByGenre(String genre) {
-        return List.of();
+        genre = genre.split(" ").length > 1 ? genre.replace(" ", "-") : genre;
+        String url = "https://dtruyen.com/" + genre;
+        System.out.println(url);
+        try {
+            Document doc = Jsoup.connect(url).get();
+            Elements storyElements = doc.select(".list-stories .story-list");
+            int maxPage = this.getMaxPage(url);
+            return storyElements.stream()
+                    .map(element -> {
+                        Element a = element.selectFirst("a");
+                        Element temp = a.selectFirst("img");
+                        String coverImage = temp.attr("data-layzr");
+                        String urlStory = a.attr("href");
+                        String title = a.attr("title");
+                        String author = element.selectFirst("p[itemprop=author]").text();
+
+                        String lastChapter = element.selectFirst("p.last-chapter").text();
+
+                        String lastDayUpdate = element.selectFirst(".last-chap .last-updated").text();
+                        Date lastDateUpdate = new Date(Long.parseLong(lastDayUpdate) * 1000);
+
+                        return new SearchResultStory(coverImage, title, author, lastChapter, lastDateUpdate,urlStory, maxPage);
+                    })
+                    .toList();
+
+        }
+        catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
     }
 
     @Override
     public List<SearchResultStory> getRecommendation() {
         return List.of();
     }
-
-
-
 }

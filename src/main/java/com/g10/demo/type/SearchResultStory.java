@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -16,7 +17,7 @@ public class SearchResultStory {
     private String title;
     private String author;
     private String lastChapter;
-    private String lastDayUpdate;
+    private Date lastDayUpdate;
     private String url;
     private int maxPage;
 }
