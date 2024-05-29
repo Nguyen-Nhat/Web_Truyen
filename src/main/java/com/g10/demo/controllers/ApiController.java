@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.http.HttpResponse;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("${api.prefix}")
 public class ApiController {
     private PluginManager pluginManager;
 
