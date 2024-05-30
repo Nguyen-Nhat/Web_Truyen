@@ -255,7 +255,7 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
             System.out.println(genreElements.size());
             return genreElements.stream().map(element -> {
                 String name = element.selectFirst("a").text();
-                String url = element.selectFirst("a").attr("href").split("/")[3];
+                String url = element.selectFirst("a").attr("href").split("/")[4];
                 return new Genre(name, url);
             }).toList();
         }
