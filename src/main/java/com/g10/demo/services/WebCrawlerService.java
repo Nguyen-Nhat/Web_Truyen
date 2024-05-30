@@ -14,5 +14,4 @@ public interface WebCrawlerService {
     public StoryDetail getDetails(String url);
     public List<ChapterInfor> getChapterInfoByPage(String url,int page);
     public List<Genre> getGenres();
-
 }

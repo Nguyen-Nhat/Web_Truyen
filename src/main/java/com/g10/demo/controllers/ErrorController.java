@@ -22,4 +22,13 @@ public class ErrorController {
         return ResponseEntity.status(e.getStatusCode()).body(errorResponse);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleException(Exception e) {
+        ErrorApiResponse errorResponse = new ErrorApiResponse();
+        errorResponse.setStatus("error");
+        errorResponse.setMessage("Internal server error");
+        System.out.println(e.getMessage());
+        return ResponseEntity.status(500).body(errorResponse);
+    }
+
 }
