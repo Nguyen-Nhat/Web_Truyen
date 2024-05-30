@@ -39,7 +39,7 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
     }
 
     @Override
-    public List<ChapterInfor> getChapterInfoByPage(String url) {
+    public List<ChapterInfor> getChapterInfoByPage(String url, int page) {
         return List.of();
     }
 }

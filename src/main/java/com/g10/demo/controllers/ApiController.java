@@ -72,11 +72,11 @@ public class ApiController {
 
     @GetMapping("/{serverName}/chapter")
     ResponseEntity<?> getChapter(@PathVariable String serverName,
-                                @RequestParam String url) {
+                                @RequestParam String url, @RequestParam int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
-        successApiResponse.setData(plugin.getChapterInfoByPage(url));
+        successApiResponse.setData(plugin.getChapterInfoByPage(url,page));
         return ResponseEntity.ok(successApiResponse);
     }
 }

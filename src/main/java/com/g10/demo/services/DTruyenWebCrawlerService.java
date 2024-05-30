@@ -26,9 +26,9 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     }
 
     @Override
-    public List<ChapterInfor> getChapterInfoByPage(String url) {
+    public List<ChapterInfor> getChapterInfoByPage(String url, int page) {
         try{
-            Document doc = Jsoup.connect(url).get();
+            Document doc = Jsoup.connect(url+ "/" + Integer.toString(page)).get();
             Elements chapterElements = doc.select("#chapters li a");
             return chapterElements.stream()
                     .map(element -> {
