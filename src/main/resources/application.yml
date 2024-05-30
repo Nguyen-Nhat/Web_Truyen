@@ -1,0 +1,19 @@
+server:
+  port: 8888
+  ssl:
+    bundle: server
+
+spring:
+  ssl:
+    bundle:
+      pem:
+        server:
+          keystore:
+            certificate: server/certs/server.crt
+            private-key: server/certs/server.key
+            private-key-password: group10
+          reload-on-update: true
+
+
+api:
+  prefix: /api/v1
