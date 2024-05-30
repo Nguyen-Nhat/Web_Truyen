@@ -1,9 +1,11 @@
 package com.g10.demo.services;
 
 import com.g10.demo.type.ChapterInfor;
+import com.g10.demo.type.ResponseApiType.DTruyenReponse;
 import com.g10.demo.type.SearchResultStory;
 import com.g10.demo.type.StoryDetail;
 import com.g10.demo.type.StoryOverview;
+import com.google.gson.Gson;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
 
@@ -11,17 +13,78 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.print.Doc;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class DTruyenWebCrawlerService implements WebCrawlerService{
+    private final String BASE_URL = "https://dtruyen.com";
+
+    int getChapterNumberFromName(String name){
+        String [] parts = name.split(" - ");
+        for (String part : parts) {
+            if (part.startsWith("Chương")) {
+                String[] chapterParts = part.split(" ");
+                return Integer.parseInt(chapterParts[1]);
+            }
+        }
+        return 1;
+    }
 
     @Override
     public StoryDetail getDetails(String url) {
+        try{
+            Document doc = Jsoup.connect(url).get();
+            String title = doc.selectFirst("#chapter p.story-title a").attr("title");
+            String author = doc.selectFirst("#chapter p:has(> i.fa-user)").text();
+            Date date = new Date(doc.selectFirst("#chapter p:has(> i.fa-clock)").text());
+            String content = doc.selectFirst("#chapter #chapter-content").html();
+            String chapterTitle = doc.selectFirst(".chapter-title").text();
+            //CALL API TO GET CHAPTERS
+            // Khởi tạo HttpClient
+            String storyID = doc.selectFirst("#storyID").val();
+            String apiUrl = BASE_URL + "/ajax/chapters?storyID=" + storyID;
+            HttpClient client = HttpClient.newHttpClient();
+
+            // Tạo yêu cầu GET
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .GET()
+                    .build();
+
+            // Gửi yêu cầu và nhận phản hồi
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            Gson gson = new Gson();
+            DTruyenReponse dTruyenReponse = gson.fromJson(response.body(), DTruyenReponse.class);
+
+            AtomicReference<ChapterInfor> currentChapter = new AtomicReference<>();
+
+            if (dTruyenReponse.getStatus() != 1)
+                throw new IOException("Error: cannot fetch chapters from Dtruyen");
+            List<ChapterInfor> chapters = dTruyenReponse.getChapters().stream()
+                    .map(chapter -> {
+                        String[] url_parts = url.split("/");
+                        String chapterUrl = BASE_URL + "/" + url_parts[3]  + "/" + chapter.getUrl();
+
+                        int chapterNumber = getChapterNumberFromName(chapter.getNo());
+                        if (chapter.getUrl().equals(url_parts[4])) {
+                            currentChapter.set(new ChapterInfor(chapterUrl, chapterTitle, chapterNumber));
+                        }
+                        return new ChapterInfor(chapterUrl, chapter.getNo(),chapterNumber);
+                    })
+                    .toList();
+            return new StoryDetail(title, author, date, currentChapter.get(),chapters , content);
+        } catch(IOException e){
+            System.out.println("Error: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return null;
     }
 
@@ -29,20 +92,13 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     public List<ChapterInfor> getChapterInfoByPage(String url, int page) {
         try{
             Document doc = Jsoup.connect(url+ "/" + Integer.toString(page)).get();
-            Elements chapterElements = doc.select("#chapters li a");
+            Elements chapterElements = doc.select("#chapters li.vip-0 a");
             return chapterElements.stream()
                     .map(element -> {
                         String chapterUrl = element.attr("href");
                         String chapterTitle = element.text();
-                        String[] parts = element.attr("title").split(" - ");
-                        int chapterNumber = 1;
-                        for (String part : parts) {
-                            if (part.startsWith("Chương")) {
-                                String[] chapterParts = part.split(" ");
-                                chapterNumber = Integer.parseInt(chapterParts[1]);
-                            }
-                        }
-                        return new ChapterInfor(chapterTitle, chapterUrl, chapterNumber);
+                        int chapterNumber = getChapterNumberFromName(element.attr("title"));
+                        return new ChapterInfor(chapterUrl, chapterTitle, chapterNumber);
                     })
                     .toList();
         }
@@ -74,7 +130,6 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     public StoryOverview getOverview(String url) {
         try {
             // GET OVERVIEW
-            System.out.println(url + "123");
             Document doc = Jsoup.connect(url).get();
             String coverImage = doc.selectFirst("#story-detail img.cover").attr("src");
             String title = doc.selectFirst("#story-detail h1.title").text();
@@ -91,9 +146,16 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
             Elements ratingElements = doc.select("#story-detail .rate .small em strong > span");
             int totalRating = Integer.parseInt(ratingElements.get(1).text());
 
+            //VIEW AND STATUS
+            int totalViews = Integer.parseInt(doc.selectFirst(".infos p:has(> i.fa-eye)").text().replaceAll("[^\\d]", ""));
+
+            Date updatedDate = new Date(doc.selectFirst(".infos p:has(> i.fa-refresh)").text());
+
+            String status = doc.selectFirst(".infos p:has(> i.fa-star)").text();
+
             //GET MAX CHAPTER
             int maxChapter = this.getMaxPage(url);
-            return new StoryOverview(coverImage, title, description, author, genres, rating, totalRating, maxChapter);
+            return new StoryOverview(coverImage, title, description, author, genres, rating, totalRating,totalViews,updatedDate,status, maxChapter);
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -101,14 +163,14 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     }
 
     @Override
-    public List<SearchResultStory> search(String keyword) {
+    public List<SearchResultStory> search(String keyword, int page) {
         try{
             keyword = keyword.split(" ").length > 1 ? keyword.replace(" ", "-") : keyword;
-            String url = "https://dtruyen.com/searching/" + keyword +"/lastupdate/all/all";
-            System.out.println(url);
+            String url = BASE_URL + "/searching/" + keyword +"/lastupdate/all/all/" + page;
+
             Document doc = Jsoup.connect(url).get();
             Elements storyElements = doc.select(".list-stories .story-list");
-            System.out.println(storyElements.size());
+
             int maxPage = this.getMaxPage(url);
             return storyElements.stream()
                     .map(element -> {
@@ -135,10 +197,10 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     }
 
     @Override
-    public List<SearchResultStory> getStoryByGenre(String genre) {
+    public List<SearchResultStory> getStoryByGenre(String genre, int page) {
         genre = genre.split(" ").length > 1 ? genre.replace(" ", "-") : genre;
-        String url = "https://dtruyen.com/" + genre;
-        System.out.println(url);
+        String url = BASE_URL + "/" + genre + "/" + page;
+
         try {
             Document doc = Jsoup.connect(url).get();
             Elements storyElements = doc.select(".list-stories .story-list");
@@ -170,6 +232,26 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
 
     @Override
     public List<SearchResultStory> getRecommendation() {
-        return List.of();
+        try {
+
+            Document doc = Jsoup.connect(BASE_URL).get();
+            Elements storyElements = doc.select(".grid-stories .story-grid");
+            return storyElements.stream()
+                    .map(element -> {
+                        Element a = element.selectFirst("a");
+                        Element temp = a.selectFirst("img");
+                        String coverImage = temp.attr("data-layzr");
+                        String urlStory = a.attr("href");
+                        String title = a.attr("title");
+                        String author = element.selectFirst("meta[itemprop=author]").attr("content");
+                        String lastChapter = element.selectFirst("p.last-chapter").text();
+                        return new SearchResultStory(coverImage, title, author, lastChapter, null,urlStory, 1);
+                    })
+                    .toList();
+        }
+        catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
     }
 }

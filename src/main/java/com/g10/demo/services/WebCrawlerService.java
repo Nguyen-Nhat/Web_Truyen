@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface WebCrawlerService {
     public StoryOverview getOverview(String url);
-    public List<SearchResultStory> search(String keyword);
-    public List<SearchResultStory> getStoryByGenre(String genre);
+    public List<SearchResultStory> search(String keyword, int page);
+    public List<SearchResultStory> getStoryByGenre(String genre, int page);
     public List<SearchResultStory> getRecommendation();
     public String getName();
     public StoryDetail getDetails(String url);

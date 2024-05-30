@@ -43,21 +43,21 @@ public class ApiController {
 
     @GetMapping("/{serverName}/search")
     ResponseEntity<?> search(@PathVariable String serverName,
-                             @RequestParam String q) {
+                             @RequestParam String q, @RequestParam int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
         successApiResponse.setStatus("success");
-        successApiResponse.setData(plugin.search(q));
+        successApiResponse.setData(plugin.search(q,page));
         return ResponseEntity.ok(successApiResponse);
     }
 
     @GetMapping("/{serverName}/genre")
     ResponseEntity<?> getStoryByGenre(@PathVariable String serverName,
-                                      @RequestParam String genre) {
+                                      @RequestParam String genre, @RequestParam  int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
-        successApiResponse.setData(plugin.getStoryByGenre(genre));
+        successApiResponse.setData(plugin.getStoryByGenre(genre, page));
         return ResponseEntity.ok(successApiResponse);
     }
 
@@ -77,6 +77,16 @@ public class ApiController {
         successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
         successApiResponse.setData(plugin.getChapterInfoByPage(url,page));
+        return ResponseEntity.ok(successApiResponse);
+    }
+
+    @GetMapping("/{serverName}/details")
+    ResponseEntity<?> getDetails(@PathVariable String serverName,
+                                @RequestParam String url) {
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("success");
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.getDetails(url));
         return ResponseEntity.ok(successApiResponse);
     }
 }

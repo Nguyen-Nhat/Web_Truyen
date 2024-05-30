@@ -14,12 +14,12 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
     }
 
     @Override
-    public List<SearchResultStory> search(String keyword) {
+    public List<SearchResultStory> search(String keyword, int page) {
         return List.of();
     }
 
     @Override
-    public List<SearchResultStory> getStoryByGenre(String genre) {
+    public List<SearchResultStory> getStoryByGenre(String genre, int page) {
         return List.of();
     }
 

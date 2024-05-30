@@ -15,6 +15,6 @@ public class DemoController {
     private WebCrawlerService webCrawlerService;
     @GetMapping
     public ResponseEntity<?> hello() {
-        return ResponseEntity.ok( webCrawlerService.search("tinh linh"));
+        return ResponseEntity.ok("heelo world");
     }
 }

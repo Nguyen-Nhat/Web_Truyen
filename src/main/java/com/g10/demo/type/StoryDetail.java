@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -14,7 +15,7 @@ import java.util.List;
 public class StoryDetail {
     private String title;
     private String author;
-    private String date;
+    private Date date;
     private ChapterInfor currentChapter;
     private List<ChapterInfor> chapters;
     private String content;
