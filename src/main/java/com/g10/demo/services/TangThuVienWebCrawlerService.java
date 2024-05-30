@@ -1,9 +1,6 @@
 package com.g10.demo.services;
 
-import com.g10.demo.type.ChapterInfor;
-import com.g10.demo.type.SearchResultStory;
-import com.g10.demo.type.StoryDetail;
-import com.g10.demo.type.StoryOverview;
+import com.g10.demo.type.*;
 
 import java.util.List;
 
@@ -40,6 +37,11 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
 
     @Override
     public List<ChapterInfor> getChapterInfoByPage(String url, int page) {
+        return List.of();
+    }
+
+    @Override
+    public List<Genre> getGenres() {
         return List.of();
     }
 }

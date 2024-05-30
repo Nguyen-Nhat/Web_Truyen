@@ -1,10 +1,7 @@
 package com.g10.demo.services;
 
 
-import com.g10.demo.type.ChapterInfor;
-import com.g10.demo.type.StoryDetail;
-import com.g10.demo.type.StoryOverview;
-import com.g10.demo.type.SearchResultStory;
+import com.g10.demo.type.*;
 
 import java.util.List;
 
@@ -16,5 +13,6 @@ public interface WebCrawlerService {
     public String getName();
     public StoryDetail getDetails(String url);
     public List<ChapterInfor> getChapterInfoByPage(String url,int page);
+    public List<Genre> getGenres();
 
 }

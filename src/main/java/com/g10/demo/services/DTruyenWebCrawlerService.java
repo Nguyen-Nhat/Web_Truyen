@@ -1,10 +1,7 @@
 package com.g10.demo.services;
 
-import com.g10.demo.type.ChapterInfor;
+import com.g10.demo.type.*;
 import com.g10.demo.type.ResponseApiType.DTruyenReponse;
-import com.g10.demo.type.SearchResultStory;
-import com.g10.demo.type.StoryDetail;
-import com.g10.demo.type.StoryOverview;
 import com.google.gson.Gson;
 import org.jsoup.Jsoup;
 import org.springframework.stereotype.Service;
@@ -107,6 +104,7 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
         }
         return  null;
     }
+
 
     @Override
     public String getName() {
@@ -246,6 +244,25 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
                         String author = element.selectFirst("meta[itemprop=author]").attr("content");
                         String lastChapter = element.selectFirst("p.last-chapter").text();
                         return new SearchResultStory(coverImage, title, author, lastChapter, null,urlStory, 1);
+                    })
+                    .toList();
+        }
+        catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    @Override
+    public List<Genre> getGenres(){
+        try {
+            Document doc = Jsoup.connect(BASE_URL).get();
+            Elements storyElements = doc.select(".categories.clearfix > a");
+            return storyElements.stream()
+                    .map(element -> {
+                        String name = element.text();
+                        String slug = element.attr("href").split("/")[3];
+                        return new Genre(name,slug);
                     })
                     .toList();
         }

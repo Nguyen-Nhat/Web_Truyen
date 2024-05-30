@@ -51,6 +51,14 @@ public class ApiController {
         return ResponseEntity.ok(successApiResponse);
     }
 
+    @GetMapping("/{serverName}/genres")
+    ResponseEntity<?> getStoryByGenre(@PathVariable String serverName) {
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("success");
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.getGenres());
+        return ResponseEntity.ok(successApiResponse);
+    }
     @GetMapping("/{serverName}/genre")
     ResponseEntity<?> getStoryByGenre(@PathVariable String serverName,
                                       @RequestParam String genre, @RequestParam  int page) {
