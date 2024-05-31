@@ -86,7 +86,14 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
         if (genresList.isEmpty()) {
             getGenres();
         }
-        Genre _genre = genresList.stream().findFirst().filter(genre1 -> genre1.getSlug().equals(genre)).get();
+        Genre _genre = null;
+
+        for (Genre g : genresList) {
+            if (g.getSlug().equals(genre)) {
+                _genre = g;
+                break;
+            }
+        }
         if (_genre == null) {
             throw new RuntimeException("Genre not found");
         }
@@ -120,7 +127,6 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
         try {
             Document document = Jsoup.connect(BASE_URL).get();
             Elements stories = document.select(".center-book-list li");
-            System.out.println(stories);
             return stories.stream().map(story -> {
                 String coverImage = story.selectFirst(".book-img img").attr("src");
                 String title = story.selectFirst(".book-info a").text();
