@@ -9,12 +9,15 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class PluginManager {
     private final Map<String, WebCrawlerService> plugins = new ConcurrentHashMap<>();
+    private final List<String> scannedPackages = new ArrayList<>();
     private static final String DEFAULT_CLASS_DIR = "target/classes";
 
     public void loadPlugin() throws Exception {
@@ -25,19 +28,21 @@ public class PluginManager {
                     .filter(path -> path.toString().endsWith(".class"))
                     .forEach(path -> {
                         String className = getClassName(directory, path.toFile());
+                        if (scannedPackages.contains(className))
+                            return;
                         try {
-                            // Kiểm tra xem plugin đã được load chưa
-                            if (!plugins.containsKey(className)) {
-                                Class<?> clazz = Class.forName(className, true, classLoader);
-                                if (WebCrawlerService.class.isAssignableFrom(clazz) &&
-                                        !clazz.isInterface() &&
-                                        !java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
-                                    WebCrawlerService webCrawlerService
-                                            = (WebCrawlerService) clazz.getDeclaredConstructor().newInstance();
-                                    plugins.put(webCrawlerService.getName().toLowerCase(), webCrawlerService);
-                                    System.out.println("Loaded plugin: " + className);
-                                }
+                            scannedPackages.add(className);
+                            Class<?> clazz = Class.forName(className, true, classLoader);
+                            if (WebCrawlerService.class.isAssignableFrom(clazz) &&
+                                    !clazz.isInterface() &&
+                                    !java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
+                                WebCrawlerService webCrawlerService
+                                        = (WebCrawlerService) clazz.getDeclaredConstructor().newInstance();
+                                String clazzName = webCrawlerService.getName().toLowerCase();
+                                plugins.put(clazzName, webCrawlerService);
+                                System.out.println("Loaded plugin: " + className);
                             }
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -62,6 +67,12 @@ public class PluginManager {
     }
 
     public String[] getAllNames() {
+        //Reload plugin
+        try {
+            loadPlugin();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return plugins.keySet().toArray(new String[0]);
     }
 }
