@@ -113,6 +113,13 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
         return  null;
     }
 
+    String getStoryDetailUrl(String url){
+        String[] parts = url.split("/");
+        if (parts.length >= 4){
+            return BASE_URL + parts[3];
+        }
+        return url;
+    }
     @Override
     public List<SearchResultStory> getStoryByGenre(String genre, int page) {
         genre = genre.replace(" ", "-");
@@ -120,17 +127,15 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
         try{
             Document doc = Jsoup.connect(url).get();
             Elements storyElements = doc.select("#list-page .list-truyen .row[itemscope]");
-            return storyElements.stream().map(element -> {
-
-                String coverImage = element.selectFirst("div[data-image]").attr("data-image");
-
+            return storyElements.stream().filter(element -> !element.html().equals("")).map(element -> {
+                Element coverImageElm = element.selectFirst("div[data-image]");
+                String coverImage = coverImageElm.attr("data-image");
                 String title = element.selectFirst("div[data-image]").attr("data-alt");
-
                 String author = element.selectFirst(".author").text();
-
                 String lastChapter = element.selectFirst(".text-info a").attr("title").split(" - ")[1];
                 Date lastDayUpdate = null;
-                String storyUrl = doc.selectFirst(".list-truyen .s-title a").attr("href");
+                String storyUrl = element.selectFirst(".text-info a").attr("href");
+                storyUrl = getStoryDetailUrl(storyUrl);
                 int maxPage = getMaxPage(url);
                 return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, storyUrl, maxPage);
             }).toList();
@@ -208,7 +213,6 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
                 String chapterTitle = element.text();
                 int chapterNumber = parseChapter(chapterUrl);
                 if (chapterUrl.equals(url)){
-                    System.out.println("Current chapter: " + chapterTitle);
                     currentChapter.set(new ChapterInfor(chapterTitleElm.attr("href"), chapterTitleElm.attr("title").split(" - ")[1], chapterNumber));
                 }
                 return new ChapterInfor(chapterUrl, chapterTitle, chapterNumber);
@@ -252,7 +256,6 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
         try{
             Document doc = Jsoup.connect(BASE_URL).get();
             Elements genreElements = doc.select(".list-cat .row div");
-            System.out.println(genreElements.size());
             return genreElements.stream().map(element -> {
                 String name = element.selectFirst("a").text();
                 String url = element.selectFirst("a").attr("href").split("/")[4];
