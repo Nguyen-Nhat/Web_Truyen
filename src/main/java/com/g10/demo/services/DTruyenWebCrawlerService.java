@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DTruyenWebCrawlerService implements WebCrawlerService{
     private final String BASE_URL = "https://dtruyen.com";
 
-    int getChapterNumberFromName(String name){
+    public int getChapterNumberFromName(String name){
         String [] parts = name.split(" - ");
         for (String part : parts) {
             if (part.startsWith("Chương")) {

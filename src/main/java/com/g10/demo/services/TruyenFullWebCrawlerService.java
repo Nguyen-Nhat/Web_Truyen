@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TruyenFullWebCrawlerService implements WebCrawlerService {
     private final String BASE_URL = "https://truyenfull.vn/";
 
-    int parsePage(String page){
+    public int parsePage(String page){
         String[] parts = page.split(" - ");
         for (String part: parts){
             if(part.startsWith("Trang")){
@@ -31,7 +31,7 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
         }
         return 1;
     }
-    int parseChapter(String url){
+    public int parseChapter(String url){
         String[] parts = url.split("/");
         String chapter = parts[parts.length - 1];
         String[] chapterParts = chapter.split("-");
@@ -113,7 +113,7 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
         return  null;
     }
 
-    String getStoryDetailUrl(String url){
+    public String getStoryDetailUrl(String url){
         String[] parts = url.split("/");
         if (parts.length >= 4){
             return BASE_URL + parts[3];
