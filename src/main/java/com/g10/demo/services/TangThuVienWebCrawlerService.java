@@ -61,24 +61,47 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
         try {
             Document document = Jsoup.connect(BASE_URL + "ket-qua-tim-kiem?term="
                     + keyword + "&page=" + page).get();
-            Elements paginationElements = document.select(".pagination a");
-            int maxPage = Integer.parseInt(paginationElements.get(paginationElements.size() - 2).text());
 
             Elements stories = document.select(".book-img-text ul li");
-            return stories.stream().map(story -> {
-                String coverImage = story.selectFirst("img").attr("src");
-                String title = story.selectFirst(".book-mid-info a").text();
-                String author = story.selectFirst(".book-mid-info .author a").text();
-                String lastChapter = story.selectFirst(".author span").text();
-                String lastDayUpdateStr = story.selectFirst(".update span").text();
-                Date lastDayUpdate = convertStringToDate(lastDayUpdateStr, "yyyy-MM-dd HH:mm:ss");
-                String url = story.selectFirst(".book-img-box a").attr("href");
+            if (checkNoResult(stories)) {
+                return new ArrayList<>();
+            }
 
-                return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, url, maxPage);
-            }).toList();
+            Elements paginationElements = document.select(".pagination a");
+            int maxPage;
+            if (!paginationElements.isEmpty()) {
+                maxPage = Integer.parseInt(paginationElements.get(paginationElements.size() - 2).text());
+            } else {
+                maxPage = 1;
+            }
+
+            return getSearchResultStories(maxPage, stories);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean checkNoResult(Elements stories) {
+        if (stories.isEmpty()) {
+            return true;
+        }
+
+        Element firstElement = stories.first();
+        return firstElement.selectFirst("li p").text().contains("Không tìm thấy");
+    }
+
+    private List<SearchResultStory> getSearchResultStories(int maxPage, Elements stories) {
+        return stories.stream().map(story -> {
+            String coverImage = story.selectFirst("img").attr("src");
+            String title = story.selectFirst(".book-mid-info a").text();
+            String author = story.selectFirst(".book-mid-info .author a").text();
+            String lastChapter = story.selectFirst(".author span").text();
+            String lastDayUpdateStr = story.selectFirst(".update span").text();
+            Date lastDayUpdate = convertStringToDate(lastDayUpdateStr, "yyyy-MM-dd HH:mm:ss");
+            String url = story.selectFirst(".book-img-box a").attr("href");
+
+            return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, url, maxPage);
+        }).toList();
     }
 
     @Override
@@ -105,18 +128,7 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
             int maxPage = Integer.parseInt(paginationElements.get(paginationElements.size() - 2).text());
 
             Elements stories = document.select(".book-img-text ul li");
-            return stories.stream().map(story -> {
-                String coverImage = story.selectFirst("img").attr("src");
-                String title = story.selectFirst(".book-mid-info a").text();
-                String author = story.selectFirst(".book-mid-info .author a").text();
-                String lastChapter = story.selectFirst(".author span").text();
-                String lastDayUpdateStr = story.selectFirst(".update span").text();
-                Date lastDayUpdate = convertStringToDate(lastDayUpdateStr, "yyyy-MM-dd HH:mm:ss");
-
-                String url = story.selectFirst(".book-img-box a").attr("href");
-
-                return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, url, maxPage);
-            }).toList();
+            return getSearchResultStories(maxPage, stories);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
