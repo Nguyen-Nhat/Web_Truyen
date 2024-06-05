@@ -102,7 +102,7 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
 
                 String lastChapter = element.selectFirst(".text-info a").attr("title").split(" - ")[1];
                 Date lastDayUpdate = null;
-                String url = doc.selectFirst(".list-truyen .s-title a").attr("href");
+                String url = element.selectFirst("a").attr("href");
                 int maxPage = getMaxPage(getUrl);
                 return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, url, maxPage);
             }).toList();
