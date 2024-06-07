@@ -3,24 +3,33 @@ package com.g10.demo.plugins;
 import com.g10.demo.exception.AppException;
 import com.g10.demo.services.WebCrawlerService;
 
+import com.g10.demo.services.exportFile.ExportFileService;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class PluginManager {
-    private final Map<String, WebCrawlerService> plugins = new ConcurrentHashMap<>();
-    private final List<String> scannedPackages = new ArrayList<>();
+    private final Map<String, WebCrawlerService> serverPlugins = new ConcurrentHashMap<>();
+    private final Map<String, ExportFileService> exportFilePlugins = new ConcurrentHashMap<>();
+
     private static final String DEFAULT_CLASS_DIR = "target/classes";
 
-    public void loadPlugin() throws Exception {
+    public PluginManager() {
+        try {
+            loadServerPlugin();
+            loadExportFilePlugin();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void loadServerPlugin() throws Exception {
         File directory = new File(DEFAULT_CLASS_DIR);
         URL classUrl = directory.toURI().toURL();
         try (URLClassLoader classLoader = new URLClassLoader(new URL[]{classUrl}, this.getClass().getClassLoader())) {
@@ -28,10 +37,7 @@ public class PluginManager {
                     .filter(path -> path.toString().endsWith(".class"))
                     .forEach(path -> {
                         String className = getClassName(directory, path.toFile());
-                        if (scannedPackages.contains(className))
-                            return;
                         try {
-                            scannedPackages.add(className);
                             Class<?> clazz = Class.forName(className, true, classLoader);
                             if (WebCrawlerService.class.isAssignableFrom(clazz) &&
                                     !clazz.isInterface() &&
@@ -39,7 +45,34 @@ public class PluginManager {
                                 WebCrawlerService webCrawlerService
                                         = (WebCrawlerService) clazz.getDeclaredConstructor().newInstance();
                                 String clazzName = webCrawlerService.getName().toLowerCase();
-                                plugins.put(clazzName, webCrawlerService);
+                                serverPlugins.put(clazzName, webCrawlerService);
+                                System.out.println("Loaded plugin: " + className);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+        }
+    }
+
+    public void loadExportFilePlugin() throws Exception {
+        File directory = new File(DEFAULT_CLASS_DIR);
+        URL classUrl = directory.toURI().toURL();
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[]{classUrl}, this.getClass().getClassLoader())) {
+            Files.walk(directory.toPath())
+                    .filter(path -> path.toString().endsWith(".class"))
+                    .forEach(path -> {
+                        String className = getClassName(directory, path.toFile());
+                        try {
+                            Class<?> clazz = Class.forName(className, true, classLoader);
+                            if (ExportFileService.class.isAssignableFrom(clazz) &&
+                                    !clazz.isInterface() &&
+                                    !java.lang.reflect.Modifier.isAbstract(clazz.getModifiers())) {
+                                ExportFileService exportFileService
+                                        = (ExportFileService) clazz.getDeclaredConstructor().newInstance();
+                                String clazzName = exportFileService.getName().toLowerCase();
+                                exportFilePlugins.put(clazzName, exportFileService);
                                 System.out.println("Loaded plugin: " + className);
                             }
 
@@ -58,7 +91,7 @@ public class PluginManager {
     }
 
     public WebCrawlerService getPlugin(String className) {
-        WebCrawlerService plugin = plugins.get(className);
+        WebCrawlerService plugin = serverPlugins.get(className);
 
         if (plugin == null) {
             throw new AppException("Plugin not found: " + className,400);
@@ -66,13 +99,36 @@ public class PluginManager {
         return plugin;
     }
 
-    public String[] getAllNames() {
-        //Reload plugin
-        try {
-            loadPlugin();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public String[] getServerNames() {
+        if (serverPlugins.isEmpty()) {
+            try {
+                loadServerPlugin();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        return plugins.keySet().toArray(new String[0]);
+
+        return serverPlugins.keySet().toArray(new String[0]);
+    }
+
+    public String[] getExportFileNames() {
+        if (exportFilePlugins.isEmpty()) {
+            try {
+                loadExportFilePlugin();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return exportFilePlugins.keySet().toArray(new String[0]);
+    }
+
+    public ExportFileService getExportFilePlugin(String className) {
+        ExportFileService plugin = exportFilePlugins.get(className);
+
+        if (plugin == null) {
+            throw new AppException("Plugin not found: " + className, 400);
+        }
+        return plugin;
     }
 }

@@ -17,3 +17,7 @@ spring:
 
 api:
   prefix: /api/v1
+
+plugin:
+  server:
+    dir: target/classes/g10/demo/services
