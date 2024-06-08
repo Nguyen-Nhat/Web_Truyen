@@ -46,7 +46,11 @@
 			<artifactId>itext7-core</artifactId>
 			<version>7.2.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.positiondev.epublib</groupId>
+			<artifactId>epublib-core</artifactId>
+			<version>3.1</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
