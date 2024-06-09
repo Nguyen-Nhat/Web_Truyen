@@ -164,9 +164,17 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
             Document document = Jsoup.connect(url).get();
             String title = document.selectFirst(".truyen-title a").text();
             String author = document.selectFirst(".chapter strong a").text();
-            Element dateElement = document.select(".chapter p").get(1);
-            String dateString =  dateElement.text().substring(11);
-            Date date = convertStringToDate(dateString, "HH:mm dd-MM-yyyy");
+
+
+            Elements elementContainDate = document.select(".chapter p");
+            Date date = null;
+
+            if (elementContainDate.size() > 1) {
+                Element dateElement = elementContainDate.get(1);
+                String dateString =  dateElement.text().substring(11);
+                date = convertStringToDate(dateString, "HH:mm dd-MM-yyyy");
+            }
+
             String content = document.selectFirst(".box-chap").text();
             String currChapterTitle = document.selectFirst(".chapter h2").text();
 
