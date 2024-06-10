@@ -118,7 +118,7 @@ public class ApiController {
     }
 
     @PostMapping("/export/{format}")
-    ResponseEntity<?> exportFile(@PathVariable String format,@RequestBody String content) {
+    ResponseEntity<?> exportFile(@PathVariable String format, @RequestBody String content) {
         //Send file to client
         ExportFileService exportFileService = pluginManager.getExportFilePlugin(format);
         ByteArrayInputStream inputStream = exportFileService.exportFile(content);
