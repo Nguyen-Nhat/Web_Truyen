@@ -89,7 +89,7 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     public List<ChapterInfor> getChapterInfoByPage(String url, int page) {
         try{
             Document doc = Jsoup.connect(url+ "/" + Integer.toString(page)).get();
-            Elements chapterElements = doc.select("#chapters li.vip-0 a");
+            Elements chapterElements = doc.select("#chapters ul.chapters li a");
             return chapterElements.stream()
                     .map(element -> {
                         String chapterUrl = element.attr("href");
