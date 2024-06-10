@@ -15,9 +15,13 @@ import java.util.List;
 public class SearchResultStory {
     private String coverImage;
     private String title;
-    private String author;
+    private Author author;
     private String lastChapter;
     private Date lastDayUpdate;
     private String url;
     private int maxPage;
+
+    //Remove this constructor
+    public SearchResultStory(String coverImage, String title, String author, String lastChapter, Date lastDayUpdate, String url, int maxPage) {
+    }
 }

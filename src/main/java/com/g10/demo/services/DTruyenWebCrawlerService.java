@@ -271,4 +271,9 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
         }
         return null;
     }
+
+    @Override
+    public List<SearchResultStory> getStoryByAuthor(String url, int page) {
+        return List.of();
+    }
 }

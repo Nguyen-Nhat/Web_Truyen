@@ -99,6 +99,16 @@ public class ApiController {
         return ResponseEntity.ok(successApiResponse);
     }
 
+    @GetMapping("/{serverName}/author")
+    ResponseEntity<?> getStoryByAuthor(@PathVariable String serverName,
+                                      @RequestParam String url, @RequestParam int page) {
+        SuccessApiResponse successApiResponse = new SuccessApiResponse();
+        successApiResponse.setStatus("success");
+        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        successApiResponse.setData(plugin.getStoryByAuthor(url, page));
+        return ResponseEntity.ok(successApiResponse);
+    }
+
     @GetMapping("/exportFormats")
     ResponseEntity<?> getExportFormats() {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();

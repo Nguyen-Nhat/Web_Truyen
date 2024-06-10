@@ -16,7 +16,7 @@ public class StoryOverview {
     private String coverImage;
     private String title;
     private String description;
-    private String author;
+    private Author author;
     private String genre;
     private double rating;
     private int totalRating;
@@ -25,4 +25,7 @@ public class StoryOverview {
     private String status;
     private int maxPageOfChapter;
 
+    //Remove constructor
+    public StoryOverview(String coverImage, String title, String description, String author, String genres, double rating, int totalRating, int totalViews, Date updatedDate, String status, int maxChapter) {
+    }
 }

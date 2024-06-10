@@ -29,7 +29,12 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
 
             //Get all children of p class tag
             Element info = document.selectFirst(".book-info .tag");
-            String author = info.child(0).text();
+
+            Element authorElement = info.child(0);
+            String authorName = authorElement.text();
+            String authorUrl = authorElement.attr("href");
+            Author author = new Author(authorName, authorUrl);
+
             String status = info.child(1).text();
             String genre = info.child(2).text();
 
@@ -41,8 +46,10 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
             Date updateDate = convertStringToDate(updateDateString, "dd/MM/yyyy HH:mm");
 
             String maxChaptersString = document.selectFirst("#j-bookCatalogPage").text();
+
             //Conver Danh sách chương (250 chương) to 250
-            int maxChapters = Integer.parseInt(maxChaptersString.substring(18, maxChaptersString.length() - 8));
+            int maxChapters = Integer.parseInt
+                    (maxChaptersString.substring(18, maxChaptersString.length() - 8));
             int pagePerChapter = 75;
 
             int maxPage = maxChapters / pagePerChapter + (maxChapters % pagePerChapter == 0 ? 0 : 1);
@@ -62,20 +69,7 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
             Document document = Jsoup.connect(BASE_URL + "ket-qua-tim-kiem?term="
                     + keyword + "&page=" + page).get();
 
-            Elements stories = document.select(".book-img-text ul li");
-            if (checkNoResult(stories)) {
-                return new ArrayList<>();
-            }
-
-            Elements paginationElements = document.select(".pagination a");
-            int maxPage;
-            if (!paginationElements.isEmpty()) {
-                maxPage = Integer.parseInt(paginationElements.get(paginationElements.size() - 2).text());
-            } else {
-                maxPage = 1;
-            }
-
-            return getSearchResultStories(maxPage, stories);
+            return getSearchResultStories(document);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -88,20 +82,6 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
 
         Element firstElement = stories.first();
         return firstElement.selectFirst("li p").text().contains("Không tìm thấy");
-    }
-
-    private List<SearchResultStory> getSearchResultStories(int maxPage, Elements stories) {
-        return stories.stream().map(story -> {
-            String coverImage = story.selectFirst("img").attr("src");
-            String title = story.selectFirst(".book-mid-info a").text();
-            String author = story.selectFirst(".book-mid-info .author a").text();
-            String lastChapter = story.selectFirst(".author span").text();
-            String lastDayUpdateStr = story.selectFirst(".update span").text();
-            Date lastDayUpdate = convertStringToDate(lastDayUpdateStr, "yyyy-MM-dd HH:mm:ss");
-            String url = story.selectFirst(".book-img-box a").attr("href");
-
-            return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, url, maxPage);
-        }).toList();
     }
 
     @Override
@@ -142,11 +122,15 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
             return stories.stream().map(story -> {
                 String coverImage = story.selectFirst(".book-img img").attr("src");
                 String title = story.selectFirst(".book-info a").text();
-                String author = story.selectFirst(".state-box .author").text();
-                String lastChapter = null;
+
+                Element authorElement = story.selectFirst(".state-box .author");
+                String authorName = authorElement.text();
+                String authorUrl = authorElement.attr("href");
+
+                Author author = new Author(authorName, authorUrl);
                 String url = story.selectFirst(".book-img a").attr("href");
 
-                return new SearchResultStory(coverImage, title, author, lastChapter, null, url, 0);
+                return new SearchResultStory(coverImage, title, author, null, null, url, 0);
             }).toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -257,6 +241,53 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
             throw new RuntimeException(e);
         }
         return genresList;
+    }
+
+    @Override
+    public List<SearchResultStory> getStoryByAuthor(String url, int page) {
+        try {
+            Document document = Jsoup.connect(url + "&page=" + page).get();
+            return getSearchResultStories(document);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<SearchResultStory> getSearchResultStories(Document document) {
+        Elements stories = document.select(".book-img-text ul li");
+        if (checkNoResult(stories)) {
+            return new ArrayList<>();
+        }
+
+        Elements paginationElements = document.select(".pagination a");
+        int maxPage;
+        if (!paginationElements.isEmpty()) {
+            maxPage = Integer.parseInt(paginationElements.get(paginationElements.size() - 2).text());
+        } else {
+            maxPage = 1;
+        }
+
+        return getSearchResultStories(maxPage, stories);
+    }
+
+    private List<SearchResultStory> getSearchResultStories(int maxPage, Elements stories) {
+        return stories.stream().map(story -> {
+            String coverImage = story.selectFirst("img").attr("src");
+            String title = story.selectFirst(".book-mid-info a").text();
+
+            Element authorElement = story.selectFirst(".book-mid-info .author a");
+            String authorName = authorElement.text();
+            String authorUrl = authorElement.attr("href");
+
+            Author author = new Author(authorName, authorUrl);
+
+            String lastChapter = story.selectFirst(".author span").text();
+            String lastDayUpdateStr = story.selectFirst(".update span").text();
+            Date lastDayUpdate = convertStringToDate(lastDayUpdateStr, "yyyy-MM-dd HH:mm:ss");
+            String url = story.selectFirst(".book-img-box a").attr("href");
+
+            return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, url, maxPage);
+        }).toList();
     }
 
     Date convertStringToDate(String date, String format) {
