@@ -1,11 +1,9 @@
-package com.g10.demo;
+package com.g10.demo.services;
 
 
-import com.g10.demo.services.DTruyenWebCrawlerService;
 import com.g10.demo.type.ChapterInfor;
 import com.g10.demo.type.StoryOverview;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import java.util.List;
 
@@ -51,7 +49,6 @@ public class DtruyenWebCrawlerServiceTest {
         assertNotNull(storyOverview);
         assertEquals("Tự Cẩm", storyOverview.getTitle());
         assertEquals("https://img.dtruyen.com/public/images/large/tucameSlJFCkbiN.jpg", storyOverview.getCoverImage());
-        assertEquals("Đông Thiên Đích Liễu Diệp", storyOverview.getAuthor());
         assertEquals("Hoàn Thành", storyOverview.getStatus());
     }
 

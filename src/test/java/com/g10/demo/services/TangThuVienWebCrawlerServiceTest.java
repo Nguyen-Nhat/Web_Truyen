@@ -1,5 +1,6 @@
 package com.g10.demo.services;
 
+import com.g10.demo.type.Author;
 import com.g10.demo.type.StoryOverview;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,8 @@ class TangThuVienWebCrawlerServiceTest {
        StoryOverview storyOverview = tangThuVienWebCrawlerService.getOverview(url);
        assertNotNull(storyOverview);
        assertEquals("Quỷ Bí Chi Chủ - 诡秘之主", storyOverview.getTitle());
-       assertEquals("Ái Tiềm Thủy đích Ô Tặc", storyOverview.getAuthor());
+       Author author = new Author("Ái Tiềm Thủy đích Ô Tặc", "https://truyen.tangthuvien.vn/tac-gia?author=1011");
+       assertEquals(author, storyOverview.getAuthor());
        assertEquals("Đã hoàn thành", storyOverview.getStatus());
     }
 

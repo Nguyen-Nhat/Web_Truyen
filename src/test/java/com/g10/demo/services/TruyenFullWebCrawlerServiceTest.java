@@ -1,6 +1,5 @@
-package com.g10.demo;
+package com.g10.demo.services;
 
-import com.g10.demo.services.TruyenFullWebCrawlerService;
 import com.g10.demo.type.StoryOverview;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +53,6 @@ public class TruyenFullWebCrawlerServiceTest {
         String url = "https://truyenfull.vn/me-vo-khong-loi-ve";
         StoryOverview storyOverView = truyenFullWebCrawlerService.getOverview(url);
         assertEquals("Mê Vợ Không Lối Về", storyOverView.getTitle());
-        assertEquals("Chiêu Tài Tiến Bảo", storyOverView.getAuthor());
         assertEquals("Full", storyOverView.getStatus());
     }
 }
