@@ -44,7 +44,7 @@ public class ApiController {
 
     @GetMapping("/{serverName}/search")
     ResponseEntity<?> search(@PathVariable String serverName,
-                             @RequestParam String q, @RequestParam int page) {
+                             @RequestParam String q, @RequestParam(defaultValue = "1") int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
         successApiResponse.setStatus("success");
@@ -62,7 +62,7 @@ public class ApiController {
     }
     @GetMapping("/{serverName}/genre")
     ResponseEntity<?> getStoryByGenre(@PathVariable String serverName,
-                                      @RequestParam String genre, @RequestParam  int page) {
+                                      @RequestParam String genre, @RequestParam(defaultValue = "1")  int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
@@ -81,7 +81,7 @@ public class ApiController {
 
     @GetMapping("/{serverName}/chapter")
     ResponseEntity<?> getChapter(@PathVariable String serverName,
-                                @RequestParam String url, @RequestParam int page) {
+                                @RequestParam String url, @RequestParam(defaultValue = "1") int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
@@ -101,7 +101,7 @@ public class ApiController {
 
     @GetMapping("/{serverName}/author")
     ResponseEntity<?> getStoryByAuthor(@PathVariable String serverName,
-                                      @RequestParam String url, @RequestParam int page) {
+                                      @RequestParam String url, @RequestParam(defaultValue = "1") int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
         WebCrawlerService plugin = pluginManager.getPlugin(serverName);
