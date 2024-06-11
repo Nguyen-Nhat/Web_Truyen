@@ -76,6 +76,9 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
                         return new ChapterInfor(chapterUrl, chapter.getNo(),chapterNumber);
                     })
                     .toList();
+            if(currentChapter.get() == null) {
+                currentChapter.set(new ChapterInfor(url, chapterTitle, getChapterNumberFromName(chapterTitle.split(":")[0].trim())));
+            }
             return new StoryDetail(title, author, date, currentChapter.get(),chapters , content);
         } catch(IOException e){
             System.out.println("Error: " + e.getMessage());
