@@ -132,7 +132,7 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
             String coverImage = doc.selectFirst("#story-detail img.cover").attr("src");
             String title = doc.selectFirst("#story-detail h1.title").text();
             String description = doc.selectFirst("#story-detail div.description").text();
-            String author = doc.selectFirst("#story-detail p.author a[itemprop=author]").attr("title");
+            String authorName = doc.selectFirst("#story-detail p.author a[itemprop=author]").attr("title");
             String genres = doc.select("#story-detail .story_categories a[itemprop=genre]")
                     .stream()
                     .map(Element::text)
@@ -151,7 +151,9 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
 
             String status = doc.selectFirst(".infos p:has(> i.fa-star)").text();
 
+            String authorUrl = doc.selectFirst("#story-detail p.author a[itemprop=author]").attr("href");
             //GET MAX CHAPTER
+            Author author = new Author(authorName,authorUrl);
             int maxChapter = this.getMaxPage(url);
             return new StoryOverview(coverImage, title, description, author, genres, rating, totalRating,totalViews,updatedDate,status, maxChapter);
         } catch (IOException e) {
@@ -177,8 +179,8 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
                         String coverImage = temp.attr("data-layzr");
                         String urlStory = a.attr("href");
                         String title = a.attr("title");
-                        String author = element.selectFirst("p[itemprop=author]").text();
-
+                        String authorName = element.selectFirst("p[itemprop=author]").text();
+                        Author author = new Author(authorName,null);
                         String lastChapter = element.selectFirst("p.last-chapter").text();
 
                         String lastDayUpdate = element.selectFirst(".last-chap .last-updated").text();
@@ -210,8 +212,8 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
                         String coverImage = temp.attr("data-layzr");
                         String urlStory = a.attr("href");
                         String title = a.attr("title");
-                        String author = element.selectFirst("p[itemprop=author]").text();
-
+                        String authorName = element.selectFirst("p[itemprop=author]").text();
+                        Author author = new Author(authorName,null);
                         String lastChapter = element.selectFirst("p.last-chapter").text();
 
                         String lastDayUpdate = element.selectFirst(".last-chap .last-updated").text();
@@ -241,7 +243,8 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
                         String coverImage = temp.attr("data-layzr");
                         String urlStory = a.attr("href");
                         String title = a.attr("title");
-                        String author = element.selectFirst("meta[itemprop=author]").attr("content");
+                        String authorName = element.selectFirst("meta[itemprop=author]").attr("content");
+                        Author author = new Author(authorName,null);
                         String lastChapter = element.selectFirst("p.last-chapter").text();
                         return new SearchResultStory(coverImage, title, author, lastChapter, null,urlStory, 1);
                     })
@@ -273,7 +276,30 @@ public class DTruyenWebCrawlerService implements WebCrawlerService{
     }
 
     @Override
-    public List<SearchResultStory> getStoryByAuthor(String url, int page) {
-        return List.of();
+    public List<SearchResultStory> getStoryByAuthor(String url, int page ) {
+        try{
+            Document doc = Jsoup.connect(url + "/" + page).get();
+            Elements storyElements = doc.select(".list-stories .story-list");
+            int maxPage = this.getMaxPage(url);
+            return storyElements.stream()
+                    .map(element -> {
+                        Element a = element.selectFirst("a");
+                        Element temp = a.selectFirst("img");
+                        String coverImage = temp.attr("data-layzr");
+                        String urlStory = a.attr("href");
+                        String title = a.attr("title");
+                        String authorName = element.selectFirst("p[itemprop=author]").text();
+                        Author author = new Author(authorName,null);
+                        String lastChapter = element.selectFirst("p.last-chapter").text();
+                        String lastDayUpdate = element.selectFirst(".last-chap .last-updated").text();
+                        Date lastDateUpdate = new Date(Long.parseLong(lastDayUpdate) * 1000);
+                        return new SearchResultStory(coverImage, title, author, lastChapter, lastDateUpdate,urlStory, maxPage);
+                    })
+                    .toList();
+        }
+        catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        return null;
     }
 }

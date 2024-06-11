@@ -65,8 +65,9 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
 
             String description = doc.selectFirst(".desc-text").text();
 
-            String author = doc.selectFirst(".info a[itemprop=author]").text();
-
+            String authorName = doc.selectFirst(".info a[itemprop=author]").text();
+            String authorUrl = doc.selectFirst(".info a[itemprop=author]").attr("href");
+            Author author = new Author(authorName, authorUrl);
             Elements genreElements = doc.select(".info a[itemprop=genre]");
             String genre = genreElements.stream().map(Element::text).reduce((s1, s2) -> s1 + ", " + s2).orElse("");
 
@@ -98,8 +99,8 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
 
                 String title = element.selectFirst("div[data-image]").attr("data-alt");
 
-                String author = element.selectFirst(".author").text();
-
+                String authorName = element.selectFirst(".author").text();
+                Author author = new Author(authorName, null);
                 String lastChapter = element.selectFirst(".text-info a").attr("title").split(" - ")[1];
                 Date lastDayUpdate = null;
                 String url = element.selectFirst("a").attr("href");
@@ -131,7 +132,8 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
                 Element coverImageElm = element.selectFirst("div[data-image]");
                 String coverImage = coverImageElm.attr("data-image");
                 String title = element.selectFirst("div[data-image]").attr("data-alt");
-                String author = element.selectFirst(".author").text();
+                String authorName = element.selectFirst(".author").text();
+                Author author = new Author(authorName, null);
                 String lastChapter = element.selectFirst(".text-info a").attr("title").split(" - ")[1];
                 Date lastDayUpdate = null;
                 String storyUrl = element.selectFirst(".text-info a").attr("href");
@@ -155,7 +157,7 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
                 Element a = element.selectFirst("a");
                 String coverImage = a.selectFirst("img").attr("src");
                 String title = a.selectFirst(".title h3").text();
-                String author = null;
+                Author author = null;
                 String lastChapter = null;
                 Date lastDayUpdate = null;
                 String url = a.attr("href");
@@ -270,6 +272,26 @@ public class TruyenFullWebCrawlerService implements WebCrawlerService {
 
     @Override
     public List<SearchResultStory> getStoryByAuthor(String url, int page) {
-        return List.of();
+        try{
+            Document doc = Jsoup.connect(url + "/trang-" + page).get();
+            int maxPage = getMaxPage(url);
+            Elements storyElements = doc.select("#list-page .list-truyen .row[itemscope]");
+            return storyElements.stream().filter(element -> !element.html().equals("")).map(element -> {
+                Element coverImageElm = element.selectFirst("div[data-image]");
+                String coverImage = coverImageElm.attr("data-image");
+                String title = element.selectFirst("div[data-image]").attr("data-alt");
+                String authorName = element.selectFirst(".author").text();
+                Author author = new Author(authorName, null);
+                String lastChapter = element.selectFirst(".text-info a").attr("title").split(" - ")[1];
+                Date lastDayUpdate = null;
+                String storyUrl = element.selectFirst(".text-info a").attr("href");
+                storyUrl = getStoryDetailUrl(storyUrl);
+                return new SearchResultStory(coverImage, title, author, lastChapter, lastDayUpdate, storyUrl, maxPage);
+            }).toList();
+        }
+        catch (IOException e){
+            System.out.println("Error: " + e.getMessage());
+        }
+        return  null;
     }
 }

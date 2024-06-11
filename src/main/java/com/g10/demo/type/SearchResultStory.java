@@ -21,15 +21,4 @@ public class SearchResultStory {
     private String url;
     private int maxPage;
 
-    //Remove this constructor
-    public SearchResultStory(String coverImage, String title, String authorName, String lastChapter, Date lastDayUpdate, String url, int maxPage) {
-        Author author = new Author(authorName, "");
-        this.coverImage = coverImage;
-        this.title = title;
-        this.author = author;
-        this.lastChapter = lastChapter;
-        this.lastDayUpdate = lastDayUpdate;
-        this.url = url;
-        this.maxPage = maxPage;
-    }
 }
