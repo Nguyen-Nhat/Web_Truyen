@@ -1,8 +1,8 @@
 package com.g10.demo.controllers;
 
 import com.g10.demo.plugins.PluginManager;
-import com.g10.demo.services.WebCrawlerService;
-import com.g10.demo.services.exportFile.ExportFileService;
+import com.g10.demo.services.web_crawler.WebCrawlerService;
+import com.g10.demo.services.export_file.ExportFileService;
 import com.g10.demo.type.response.SuccessApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -37,7 +37,7 @@ public class ApiController {
 
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setData(plugin.getOverview(url));
         return ResponseEntity.ok(successApiResponse);
     }
@@ -46,7 +46,7 @@ public class ApiController {
     ResponseEntity<?> search(@PathVariable String serverName,
                              @RequestParam String q, @RequestParam(defaultValue = "1") int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setStatus("success");
         successApiResponse.setData(plugin.search(q,page));
         return ResponseEntity.ok(successApiResponse);
@@ -56,7 +56,7 @@ public class ApiController {
     ResponseEntity<?> getStoryByGenre(@PathVariable String serverName) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setData(plugin.getGenres());
         return ResponseEntity.ok(successApiResponse);
     }
@@ -65,7 +65,7 @@ public class ApiController {
                                       @RequestParam String genre, @RequestParam(defaultValue = "1")  int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setData(plugin.getStoryByGenre(genre, page));
         return ResponseEntity.ok(successApiResponse);
     }
@@ -74,7 +74,7 @@ public class ApiController {
     ResponseEntity<?> getRecommendation(@PathVariable String serverName) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setData(plugin.getRecommendation());
         return ResponseEntity.ok(successApiResponse);
     }
@@ -84,7 +84,7 @@ public class ApiController {
                                 @RequestParam String url, @RequestParam(defaultValue = "1") int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setData(plugin.getChapterInfoByPage(url,page));
         return ResponseEntity.ok(successApiResponse);
     }
@@ -94,7 +94,7 @@ public class ApiController {
                                 @RequestParam String url) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setData(plugin.getDetails(url));
         return ResponseEntity.ok(successApiResponse);
     }
@@ -104,7 +104,7 @@ public class ApiController {
                                       @RequestParam String url, @RequestParam(defaultValue = "1") int page) {
         SuccessApiResponse successApiResponse = new SuccessApiResponse();
         successApiResponse.setStatus("success");
-        WebCrawlerService plugin = pluginManager.getPlugin(serverName);
+        WebCrawlerService plugin = pluginManager.getServerPlugin(serverName);
         successApiResponse.setData(plugin.getStoryByAuthor(url, page));
         return ResponseEntity.ok(successApiResponse);
     }

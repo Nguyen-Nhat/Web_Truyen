@@ -1,4 +1,4 @@
-package com.g10.demo.services;
+package com.g10.demo.services.web_crawler;
 
 import com.g10.demo.type.*;
 import com.g10.demo.type.ResponseApiType.DTruyenReponse;

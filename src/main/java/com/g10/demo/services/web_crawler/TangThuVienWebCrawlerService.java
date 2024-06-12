@@ -1,4 +1,4 @@
-package com.g10.demo.services;
+package com.g10.demo.services.web_crawler;
 
 import com.g10.demo.exception.AppException;
 import com.g10.demo.type.*;
@@ -8,7 +8,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.print.Doc;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;

@@ -11,7 +11,7 @@ public class ExportFilePluginWatcher extends PluginWatcher{
 
     @Autowired
     public ExportFilePluginWatcher(PluginManager shapeManager) throws IOException {
-        super("target/classes/com/g10/demo/services/exportFile");
+        super("target/classes/com/g10/demo/services/export_file");
         this.shapeManager = shapeManager;
     }
 

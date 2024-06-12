@@ -13,7 +13,7 @@ class DemoApplicationTests {
 	@Test
 	void testGetInvalidServicePlugin() {
 		assertThrows(AppException.class, () -> {
-			pluginManager.getPlugin("invalid-service");
+			pluginManager.getServerPlugin("invalid-service");
 		});
 	}
 

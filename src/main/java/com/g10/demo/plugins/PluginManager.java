@@ -1,9 +1,9 @@
 package com.g10.demo.plugins;
 
 import com.g10.demo.exception.AppException;
-import com.g10.demo.services.WebCrawlerService;
+import com.g10.demo.services.web_crawler.WebCrawlerService;
 
-import com.g10.demo.services.exportFile.ExportFileService;
+import com.g10.demo.services.export_file.ExportFileService;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -30,6 +30,7 @@ public class PluginManager {
     }
 
     public void loadServerPlugin() throws Exception {
+        serverPlugins.clear();
         File directory = new File(DEFAULT_CLASS_DIR);
         URL classUrl = directory.toURI().toURL();
         try (URLClassLoader classLoader = new URLClassLoader(new URL[]{classUrl}, this.getClass().getClassLoader())) {
@@ -57,6 +58,7 @@ public class PluginManager {
     }
 
     public void loadExportFilePlugin() throws Exception {
+        exportFilePlugins.clear();
         File directory = new File(DEFAULT_CLASS_DIR);
         URL classUrl = directory.toURI().toURL();
         try (URLClassLoader classLoader = new URLClassLoader(new URL[]{classUrl}, this.getClass().getClassLoader())) {
@@ -90,7 +92,7 @@ public class PluginManager {
         return className.replace(File.separatorChar, '.');
     }
 
-    public WebCrawlerService getPlugin(String className) {
+    public WebCrawlerService getServerPlugin(String className) {
         WebCrawlerService plugin = serverPlugins.get(className);
 
         if (plugin == null) {

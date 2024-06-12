@@ -12,7 +12,7 @@ public class ServerPluginWatcher extends PluginWatcher {
 
     @Autowired
     public ServerPluginWatcher(PluginManager shapeManager) throws IOException {
-        super("target/classes/com/g10/demo/services/");
+        super("target/classes/com/g10/demo/services/web_crawler");
         this.shapeManager = shapeManager;
     }
 
