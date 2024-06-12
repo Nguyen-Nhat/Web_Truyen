@@ -1,6 +1,8 @@
 package com.g10.demo.services;
 
+import com.g10.demo.exception.AppException;
 import com.g10.demo.type.*;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -8,6 +10,7 @@ import org.jsoup.select.Elements;
 
 import javax.print.Doc;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,9 +23,8 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
 
     @Override
     public StoryOverview getOverview(String url) {
-        //Connect to the website and get the overview of the story
         try {
-            Document document = Jsoup.connect(url).get();
+            Document document = getDocument(url);
             String coverImage = document.selectFirst(".book-img img").attr("src");
             String title = document.selectFirst(".book-info h1").text();
             String description = document.selectFirst(".book-info-detail .book-intro p").text();
@@ -39,7 +41,7 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
             String genre = info.child(2).text();
 
             double rating = Double.parseDouble(document.selectFirst("#j_bookScore cite").text());
-            int totalRating = Integer.parseInt(document.selectFirst("#myrating").text());
+            int totalRating = Integer.parseInt(document.selectFirst("#j_userCount span").text());
 
             String updateDateString = document.selectFirst(".volume-wrap em.count").text(); //(Cập nhật: 30/05/2024 12:47)
             updateDateString = updateDateString.substring(11, updateDateString.length() - 1);
@@ -117,7 +119,7 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
     @Override
     public List<SearchResultStory> getRecommendation() {
         try {
-            Document document = Jsoup.connect(BASE_URL).get();
+            Document document = Jsoup.connect(BASE_URL).timeout(10000).get();
             Elements stories = document.select(".center-book-list li");
             return stories.stream().map(story -> {
                 String coverImage = story.selectFirst(".book-img img").attr("src");
@@ -132,7 +134,10 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
 
                 return new SearchResultStory(coverImage, title, author, null, null, url, 0);
             }).toList();
-        } catch (IOException e) {
+        } catch (SocketTimeoutException e) {
+            throw new AppException("Request timeout", 408);
+        }
+        catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -145,7 +150,7 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
     @Override
     public StoryDetail getDetails(String url) {
         try {
-            Document document = Jsoup.connect(url).get();
+            Document document = getDocument(url);
             String title = document.selectFirst(".truyen-title a").text();
             String author = document.selectFirst(".chapter strong a").text();
 
@@ -194,7 +199,7 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
         try {
             int limit = 75;
             int pageRequest = page - 1;
-            Document document = Jsoup.connect(url).get();
+            Document document = getDocument(url);
             int storyId = Integer.parseInt(document.selectFirst("#story_id_hidden").attr("value"));
             document = Jsoup.connect
                     ("https://truyen.tangthuvien.vn/doc-truyen/page/"
@@ -297,5 +302,23 @@ public class TangThuVienWebCrawlerService implements WebCrawlerService{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Document getDocument(String url) throws IOException {
+        if (url.contains("\"")) {
+            url = url.replaceAll("\"", "%22");
+        }
+        Connection connection = Jsoup.connect(url).followRedirects(false);
+        Connection.Response response = connection.execute();
+
+        // Check if the response has a redirect status code
+        if (response.hasHeader("location")) {
+            String redirectUrl = response.header("location");
+            assert redirectUrl != null;
+            redirectUrl = redirectUrl.replaceAll("\"", "%22");
+            return Jsoup.connect(redirectUrl).get();
+        }
+
+        return response.parse();
     }
 }

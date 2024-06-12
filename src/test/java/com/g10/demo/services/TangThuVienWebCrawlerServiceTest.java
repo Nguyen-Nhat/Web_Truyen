@@ -2,8 +2,10 @@ package com.g10.demo.services;
 
 import com.g10.demo.type.Author;
 import com.g10.demo.type.StoryOverview;
+import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -72,5 +74,18 @@ class TangThuVienWebCrawlerServiceTest {
         var genres = tangThuVienWebCrawlerService.getGenres();
         assertFalse(genres.isEmpty());
         assertEquals(12, genres.size());
+    }
+
+    @Test
+    void getDocument() {
+        String url = "https://truyen.tangthuvien.vn/doc-truyen/%22sat-than%22-vuong-gia-lanh-tinh-phi";
+        Document document = null;
+        try {
+            document = tangThuVienWebCrawlerService.getDocument(url);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(document);
+        assertNotNull(document);
     }
 }
